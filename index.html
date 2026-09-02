@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2212%22%20fill%3D%22%230b1220%22%2F%3E%3Ccircle%20cx%3D%2228%22%20cy%3D%2228%22%20r%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%226%22%2F%3E%3C%2Fsvg%3E">
+<title>Obras por serviço — termômetro</title>
+<style>
+:root{
+  --bg:#0b1220; --panel:#151f33; --panel2:#1c2942; --line:#2c3b57; --txt:#e8eefc; --muted:#93a3bf;
+  --head:#22304a; --accent:#38bdf8; --btn:#2563eb; --ok:#22c55e; --ok-bg:rgba(34,197,94,.14); --ok-txt:#86efac;
+  --bad:#ef4444; --bad-bg:rgba(239,68,68,.14); --bad-txt:#fca5a5;
+}
+[data-tema="claro"]{
+  --bg:#f1f5f9; --panel:#ffffff; --panel2:#f8fafc; --line:#d7dee8; --txt:#0f172a; --muted:#5b6b85;
+  --head:#e2e8f0; --accent:#0284c7; --ok:#16a34a; --ok-bg:#dcfce7; --ok-txt:#15803d;
+  --bad:#dc2626; --bad-bg:#fee2e2; --bad-txt:#b91c1c;
+}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt)}
+header{background:linear-gradient(90deg,var(--panel),var(--panel2));padding:14px 20px;border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+h1{margin:0;font-size:18px}
+.sub{color:var(--muted);font-size:12px;margin-top:2px}
+.wrap{padding:16px 20px;max-width:1400px;margin:0 auto}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.box h2{margin:0 0 4px;font-size:15px}
+.box .passo{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:99px;
+  background:var(--btn);color:#fff;font-size:12px;font-weight:800;margin-right:8px}
+input,select,button,textarea{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+button{cursor:pointer;background:var(--btn);border-color:var(--btn);color:#fff;font-weight:600}
+button.sec{background:var(--panel2);border-color:var(--line);color:var(--txt);font-weight:500}
+button:hover{filter:brightness(1.08)}
+textarea{width:100%;font:12.5px/1.5 ui-monospace,Consolas,monospace;resize:vertical}
+.linha{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin-bottom:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.card .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.card .val{font-size:20px;font-weight:700;margin-top:3px}
+.card.ok{border-color:var(--ok);background:var(--ok-bg)} .card.ok .val{color:var(--ok-txt)}
+table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:10px;overflow:hidden}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}
+th{background:var(--head);position:sticky;top:0;cursor:pointer;white-space:nowrap;font-size:12px}
+th.num,td.num{text-align:right}
+tbody tr:nth-child(even){background:var(--panel2)}
+tbody tr:hover{background:var(--head)}
+.scroll{max-height:62vh;overflow:auto;border-radius:10px;border:1px solid var(--line)}
+.muted{color:var(--muted)}
+.tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid transparent}
+.t-I{background:var(--ok-bg);color:var(--ok-txt);border-color:var(--ok)}
+.t-R{background:var(--bad-bg);color:var(--bad-txt);border-color:var(--bad)}
+.t-x{background:var(--panel2);color:var(--muted);border-color:var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{display:flex;align-items:center;gap:6px;padding:3px 6px 3px 10px;border-radius:99px;background:var(--panel2);
+  border:1px solid var(--accent);font-size:12.5px;font-weight:600}
+.chip b{font-weight:800}
+.chip button{background:transparent;border:0;color:var(--muted);padding:0 4px;font-weight:800;cursor:pointer}
+.chip button:hover{color:var(--bad)}
+#vazio{padding:36px 20px;text-align:center;border:2px dashed var(--line);border-radius:12px;background:var(--panel)}
+#vazio .big{font-size:32px}
+.ok{color:var(--ok-txt)} .bad{color:var(--bad-txt)}
+ol{font-size:13px;padding-left:20px;line-height:1.75;margin:8px 0 0}
+label.inl{display:inline-flex;align-items:center;gap:6px;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🔎 Obras por serviço — termômetro</h1>
+    <div class="sub">Lista todas as obras que tiveram um serviço específico apontado, buscando pelo código do serviço.</div>
+  </div>
+  <span style="flex:1"></span>
+  <button class="sec" id="btnTema">🌙 Tema</button>
+</header>
+
+<div class="wrap">
+
+  <div class="box">
+    <h2><span class="passo">1</span>Obras a consultar</h2>
+    <div id="boxLista">
+      <p class="muted" style="margin:10px 0 0;font-size:12.5px">Cole os números das obras <b>como eles são</b> — uma por linha (ou separadas por vírgula).
+        Zeros à frente, ponto no fim, traço: vai tudo do jeito que você escrever, e o coletor ainda tenta as variações se a busca não achar.</p>
+      <textarea id="obras" rows="4" placeholder="60001&#10;60002&#10;60003"></textarea>
+      <div class="linha">
+        <span id="obrasRes" class="muted" style="font-size:12.5px"></span>
+        <span style="flex:1"></span>
+        <button class="sec" id="obrasLimpar">Limpar</button>
+      </div>
+    </div>
+    <p class="muted" style="margin:10px 0 0;font-size:12.5px">Se a busca não achar as obras, use
+      <button class="sec" id="diag">🩺 Copiar diagnóstico da tela</button> dentro do termômetro e me mande o resultado — ele descreve a estrutura da lista sem enviar nada para lugar nenhum.</p>
+  </div>
+
+  <div class="box">
+    <h2><span class="passo">2</span>Coletar no termômetro</h2>
+    <p class="muted" style="margin:6px 0 0;font-size:12.5px">O termômetro exige login, por isso a coleta roda dentro dele, por um favorito do navegador.
+      Nada é alterado lá e <b>nenhum arquivo é baixado</b>: as planilhas geradas são lidas na memória e descartadas.
+      A busca é limpa antes de cada obra e o número da obra é conferido dentro da planilha — obra que não confirmar entra como <b>não encontrada</b>, nunca com dados de outra.</p>
+    <ol>
+      <li><b>Uma vez só:</b> <button id="termoMarcador">Copiar o coletor</button> <button class="sec" id="termoMostrar">mostrar o endereço</button>
+        e crie um favorito com ele — no Chrome, <b>Ctrl+Shift+O</b> → menu <b>⋮</b> → <b>Adicionar novo favorito</b> →
+        cole no campo <b>URL</b>, dê o nome <i>Coletar termômetro</i> e salve. Deixe a barra de favoritos visível (<b>Ctrl+Shift+B</b>).
+        <br><span class="muted">Refaça este passo sempre que trocar a lista de obras — ela vai dentro do favorito.</span></li>
+      <li><button class="sec" id="termoAbrir">Abrir o termômetro</button> e, já logado, <b>clique no favorito</b>.
+        A coleta leva cerca de 4 segundos por obra e, ao terminar, copia o resultado sozinha.</li>
+      <li>Volte aqui, cole no campo abaixo e aplique:</li>
+    </ol>
+    <textarea id="cola" rows="4" placeholder="Cole aqui o resultado da coleta"></textarea>
+    <div class="linha">
+      <button id="aplicar">✅ Aplicar coleta</button>
+      <button class="sec" id="limparColeta">🧹 Limpar coleta</button>
+      <button class="sec" id="verBruto" hidden>🔍 Ver o que veio da coleta</button>
+      <input id="obraTeste" placeholder="obra p/ teste" style="width:130px">
+      <button class="sec" id="teste">🧪 Copiar teste de 1 obra</button>
+      <button class="sec" id="recarregar" hidden>↩️ Recarregar última coleta</button>
+      <span id="colaRes" style="font-size:12.5px"></span>
+    </div>
+    <pre id="bruto" hidden style="margin:10px 0 0;padding:10px;max-height:320px;overflow:auto;background:var(--panel2);
+      border:1px solid var(--line);border-radius:8px;font:11.5px/1.45 ui-monospace,Consolas,monospace;white-space:pre-wrap"></pre>
+  </div>
+
+  <div class="box">
+    <h2><span class="passo">3</span>Serviços procurados</h2>
+    <p class="muted" style="margin:6px 0 0;font-size:12.5px">Escolha na lista (só aparecem os serviços que existem na coleta) ou digite os códigos direto.
+      Pode marcar mais de um: a obra entra no resultado se tiver <b>qualquer</b> um deles.</p>
+    <div class="linha">
+      <select id="selServ" style="min-width:340px;max-width:100%"><option value="">— aplique uma coleta primeiro —</option></select>
+      <input id="codManual" placeholder="ou digite códigos: 6120, 6121" style="min-width:220px">
+      <button class="sec" id="addCod">Adicionar</button>
+      <button class="sec" id="limparCods">Limpar seleção</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="box" id="boxSem" hidden>
+    <h2 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span class="passo" style="background:var(--bad)">!</span>Obras sem apontamento
+      <span class="muted" id="semQtd" style="font-weight:400;font-size:12.5px"></span>
+      <span style="flex:1"></span>
+      <button class="sec" id="semCopiar">📋 Copiar os números</button>
+      <button class="sec" id="semCsv">⬇️ CSV</button>
+      <button class="sec" id="semAlternar">ocultar</button>
+    </h2>
+    <p class="muted" style="margin:6px 0 0;font-size:12.5px">Obras que entraram na coleta mas não trouxeram nenhum serviço —
+      não é o mesmo que "não tem o serviço procurado". Vale conferir uma a uma no termômetro.</p>
+    <div class="scroll" id="semLista" style="margin-top:10px;max-height:40vh"></div>
+  </div>
+
+  <div id="vazio">
+    <div class="big">🔎</div>
+    <h2 style="margin:8px 0 4px;font-size:17px">Nenhum resultado ainda</h2>
+    <p class="muted" style="margin:0">Aplique uma coleta do termômetro e escolha ao menos um código de serviço.</p>
+  </div>
+
+  <div id="res" hidden>
+    <div class="cards" id="cards"></div>
+    <div class="linha" style="margin:0 0 10px">
+      <input id="q" placeholder="Filtrar por obra ou equipe" style="min-width:230px">
+      <select id="fmes"><option value="">Todos os meses</option></select>
+      <select id="fop">
+        <option value="">Instalar e retirar</option>
+        <option value="I">Só instalar</option>
+        <option value="R">Só retirar</option>
+      </select>
+      <label class="inl"><input type="checkbox" id="agrup" checked> Uma linha por obra (somando os serviços)</label>
+      <span style="flex:1"></span>
+      <button class="sec" id="copiarObras">📋 Copiar só os números das obras</button>
+      <button class="sec" id="csv">⬇️ Baixar CSV</button>
+    </div>
+    <div class="scroll"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+    <p class="muted" id="rodape" style="font-size:12.5px"></p>
+  </div>
+
+</div>
+
+<script>
+const TERMO_URL="https://termometro-teccel-v2.vercel.app/administrativo";
+const $=id=>document.getElementById(id);
+const nnum=n=>Number(n||0).toLocaleString("pt-BR");
+const nval=n=>Number(n||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const nqtd=n=>Number(n||0).toLocaleString("pt-BR",{maximumFractionDigits:2});
+
+/* localStorage pode estar bloqueado (file://, aba anônima): nunca deixar quebrar a página */
+const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},
+          set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+
+/* ---------- tema ---------- */
+if(LS.get("bso_tema")==="claro") document.documentElement.dataset.tema="claro";
+$("btnTema").onclick=()=>{
+  const claro=document.documentElement.dataset.tema==="claro";
+  if(claro) delete document.documentElement.dataset.tema; else document.documentElement.dataset.tema="claro";
+  LS.set("bso_tema",claro?"escuro":"claro");
+};
+
+/* ---------- lista de obras ---------- */
+/* número de obra vai como o usuário escreveu (zeros à frente, ponto no fim, traço):
+   só separo por linha, vírgula ou ponto e vírgula e guardo o que tiver algum dígito */
+const lerObras=()=>[...new Set($("obras").value.split(/[\n,;\t]+/).map(s=>s.trim()).filter(s=>/\d/.test(s)))];
+const porLista=()=>true;   /* a coleta é sempre pela lista de números */
+function pintarObras(){
+  const n=lerObras().length;
+  $("obrasRes").innerHTML = n? `<b>${nnum(n)}</b> obra${n>1?"s":""} na lista — cerca de <b>${Math.ceil(n*4/60)} min</b> de coleta.`
+    : "Nenhuma obra reconhecida ainda.";
+  LS.set("bso_obras",$("obras").value);
+}
+$("obras").addEventListener("input",pintarObras);
+$("obrasLimpar").onclick=()=>{$("obras").value="";pintarObras()};
+$("obras").value=LS.get("bso_obras")||"";
+pintarObras();
+
+/* ---------- script que o usuário cola no termômetro (somente leitura) ---------- */
+/* sobe a cada mudança no coletor: serve para o app avisar quando o favorito está velho */
+const VERSAO=10;
+function scriptColeta(){
+  const obras=JSON.stringify(lerObras());
+  return `/* Coletor de serviços — roda dentro do termômetro, apenas LENDO.
+   Não altera dados e não baixa arquivos: as planilhas são lidas na memória.
+   A busca é feita pelos números de obra informados no sistema. */
+(async()=>{
+const VERSAO=${VERSAO};
+const OBRAS=${obras};
+if(!OBRAS.length){alert("A lista de obras esta vazia. Volte ao sistema, informe os numeros e copie o coletor de novo.");return}
+const cap=[]; const origURL=URL.createObjectURL;
+URL.createObjectURL=function(b){try{cap.push(b)}catch(e){} return origURL.call(URL,b)};
+const origSave=window.saveAs, origClick=HTMLAnchorElement.prototype.click,
+      origDisp=EventTarget.prototype.dispatchEvent, origMs=navigator.msSaveBlob, origOpen=window.open;
+const ehDownload=el=>{try{return el instanceof HTMLAnchorElement && el.hasAttribute("download")}catch(e){return false}};
+window.saveAs=function(b){try{if(b)cap.push(b)}catch(e){}};
+navigator.msSaveBlob=function(b){try{if(b)cap.push(b)}catch(e){} return true};
+HTMLAnchorElement.prototype.click=function(){ if(ehDownload(this)) return; return origClick.call(this) };
+EventTarget.prototype.dispatchEvent=function(ev){
+  if(ev && ev.type==="click" && ehDownload(this)) return true;
+  return origDisp.call(this,ev);
+};
+window.open=function(u){ if(typeof u==="string" && u.startsWith("blob:")) return null; return origOpen.apply(window,arguments) };
+/* os avisos da própria página (alert) travavam a coleta: agora ficam registrados */
+const avisos=[]; const origAlert=window.alert, origConfirm=window.confirm;
+window.alert=function(m){ avisos.push(String(m)); console.warn("aviso da pagina:",m) };
+const restaurar=()=>{URL.createObjectURL=origURL; window.saveAs=origSave; navigator.msSaveBlob=origMs;
+  HTMLAnchorElement.prototype.click=origClick; EventTarget.prototype.dispatchEvent=origDisp; window.open=origOpen;
+  window.alert=origAlert; window.confirm=origConfirm};
+
+const painel=document.createElement("div");
+painel.style.cssText="position:fixed;right:16px;bottom:16px;z-index:999999;background:#0b1220;color:#e8eefc;"+
+ "font:13px system-ui,Segoe UI,Arial;padding:14px 16px;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.45);"+
+ "min-width:290px;border:1px solid #2c3b57";
+painel.innerHTML='<div style="font-weight:700;margin-bottom:6px">Coletando apontamentos…</div>'+
+ '<div id="__cp" style="color:#93a3bf">iniciando</div>'+
+ '<div style="height:8px;background:#1c2942;border-radius:99px;margin-top:8px;overflow:hidden">'+
+ '<i id="__cb" style="display:block;height:100%;width:0;background:#38bdf8"></i></div>';
+document.body.appendChild(painel);
+const passo=(i,txt)=>{const p=document.getElementById("__cp"),b=document.getElementById("__cb");
+  if(p)p.textContent=txt; if(b)b.style.width=(OBRAS.length?Math.round(i/OBRAS.length*100):0)+"%"};
+
+const inp=()=>[...document.querySelectorAll("input")].find(e=>e.placeholder==="Pesquisar OBRA")
+  ||[...document.querySelectorAll("input")].find(e=>/pesquisar.*obra/i.test(e.placeholder||""));
+/* o botão de buscar era pego pelo índice 1; agora procuro o vizinho do campo e caio no índice só como último recurso */
+const btnBuscar=()=>{
+  const i=inp(); const todos=[...document.querySelectorAll("button")];
+  if(i){ let p=i.parentElement;
+    for(let n=0;n<4&&p;n++,p=p.parentElement){ const b=p.querySelector("button"); if(b) return b } }
+  return todos.find(b=>/buscar|pesquisar/i.test((b.title||"")+(b.getAttribute("aria-label")||"")+(b.innerText||"")))||todos[1];
+};
+/* o botão da planilha pode ser button, link ou só um ícone com title */
+const descrEl=e=>[e.title,e.getAttribute("aria-label"),e.innerText,
+  ...[...e.querySelectorAll("img,svg,[title],[aria-label]")].map(x=>(x.getAttribute("title")||x.getAttribute("aria-label")||x.alt||""))
+ ].filter(Boolean).join(" ").trim();
+const clicaveis=()=>[...document.querySelectorAll("button,a,[role='button'],[onclick],[title],[aria-label]")];
+const btnPlan=()=>{const t=clicaveis();
+  return t.find(b=>b.title==="Gerar Planilha Simplificado")
+    ||t.find(b=>/planilha\\s*simplificad/i.test(descrEl(b)))
+    ||t.find(b=>/planilha|xlsx?|excel/i.test(descrEl(b)))
+    ||t.find(b=>/exportar|baixar|download/i.test(descrEl(b)))};
+/* algumas telas só buscam no Enter */
+const buscar=()=>{const i=inp(),b=btnBuscar(); if(b)b.click();
+  if(i)i.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",keyCode:13,which:13,bubbles:true}))};
+/* "0032503170" e "32503170" são a mesma obra */
+const normObra=v=>String(v||"").replace(/\\D/g,"").replace(/^0+/,"");
+const espera=ms=>new Promise(r=>setTimeout(r,ms));
+const ate=async(cond,max=6000,p=120)=>{const t0=Date.now();
+  while(Date.now()-t0<max){ if(cond()) return true; await espera(p) } return false};
+const setVal=(el,v)=>{Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,"value").set.call(el,v);
+  el.dispatchEvent(new Event("input",{bubbles:true}))};
+const topo=()=>{const t=document.body.innerText,i=t.indexOf("ULTIMAS");
+  return t.slice(i,i+400).split("\\n").map(x=>x.trim()).filter(Boolean)};
+const equipeNaTela=()=>{const l=topo()[1]||""; return (!/Funcion|%|R\\$/.test(l)&&l)?l:""};
+
+async function lerZip(blob){
+  const buf=new Uint8Array(await blob.arrayBuffer()), dv=new DataView(buf.buffer);
+  let eo=-1; for(let i=buf.length-22;i>=0;i--){if(dv.getUint32(i,true)===0x06054b50){eo=i;break}}
+  const n=dv.getUint16(eo+10,true); let p=dv.getUint32(eo+16,true); const arqs={};
+  for(let k=0;k<n;k++){const nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true);
+    arqs[new TextDecoder().decode(buf.subarray(p+46,p+46+nl))]={m:dv.getUint16(p+10,true),lho:dv.getUint32(p+42,true),cs:dv.getUint32(p+20,true)};
+    p+=46+nl+el+cl}
+  const ler=async nome=>{const a=arqs[nome]; if(!a) return "";
+    const nl=dv.getUint16(a.lho+26,true),el=dv.getUint16(a.lho+28,true), ini=a.lho+30+nl+el, d=buf.subarray(ini,ini+a.cs);
+    return a.m===0? new TextDecoder().decode(d)
+      : await new Response(new Blob([d]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text()};
+  const ss=await ler("xl/sharedStrings.xml");
+  const S=[...ss.matchAll(/<si>(.*?)<\\/si>/gs)].map(m=>[...m[1].matchAll(/<t[^>]*>(.*?)<\\/t>/gs)].map(x=>x[1]).join("")
+    .replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'"));
+  const sh=await ler("xl/worksheets/sheet1.xml"); const L=[];
+  for(const m of sh.matchAll(/<row[^>]*r="(\\d+)"[^>]*>(.*?)<\\/row>/gs)){
+    const c={};
+    for(const cel of m[2].matchAll(/<c r="([A-Z]+)\\d+"([^>]*)>(?:<v>(.*?)<\\/v>|<is>.*?<t[^>]*>(.*?)<\\/t>.*?<\\/is>)?<\\/c>/gs)){
+      const v = cel[4]!==undefined? cel[4] : (cel[3]===undefined? "" : (/t="s"/.test(cel[2]||"")? S[+cel[3]] : cel[3]));
+      if(v!=="") c[cel[1]]=v;
+    }
+    if(Object.keys(c).length) L.push(c);
+  }
+  return L;
+}
+
+const t0=Date.now();
+const res={v:VERSAO,gerado:new Date().toISOString(),obras:{}};
+for(let i=0;i<OBRAS.length;i++){
+  const obra=OBRAS[i];
+  passo(i,"obra "+obra+" — "+(i+1)+" de "+OBRAS.length);
+  cap.length=0;
+  /* limpa a busca antes de cada obra para não herdar o resultado anterior.
+     Antes, não conseguir limpar cancelava a obra — e cancelava tudo quando a tela
+     mantém texto fixo no topo. Agora só registro: quem garante a obra é a planilha. */
+  setVal(inp(),"ZZZZZZZZZZ"); await espera(200); buscar();
+  await ate(()=>!equipeNaTela(), 2500);
+  const limpou=!equipeNaTela();
+  /* o campo aceita o número em mais de uma forma (com ponto no fim, sem os zeros
+     da frente): tento as variações até a planilha sair */
+  const variantes=[...new Set([obra,obra+".",normObra(obra),normObra(obra)+"."])];
+  let clicou=false, usado="";
+  const achaResultado=()=>{
+    const n=normObra(obra);
+    return [...document.querySelectorAll("tr,li,[role='row'],[role='option'],[role='button'],button,a,td")]
+      .filter(e=>(e.innerText||"").length<200)
+      .find(e=>{const t=e.innerText||"";
+        return t.includes(obra) || (t.match(/\\d[\\d.\\-\\/]{3,}/g)||[]).some(x=>normObra(x)===n)});
+  };
+  for(const v of variantes){
+    const antes=document.body.innerText.slice(0,3000);
+    setVal(inp(),v); await espera(250); buscar(); usado=v;
+    await ate(()=>!!achaResultado()||!!equipeNaTela()||document.body.innerText.slice(0,3000)!==antes, 6000);
+    await espera(400);
+    const alvo=achaResultado();
+    if(alvo){ (alvo.closest("tr,li,[role='row'],[role='option']")||alvo).click(); clicou=true; await espera(900) }
+    /* só aceito a variante se a planilha realmente sair */
+    avisos.length=0; cap.length=0;
+    const b=btnPlan();
+    if(b){ b.click(); await ate(()=>cap.length>0, 9000) }
+    if(cap.length) break;
+  }
+  const eq=equipeNaTela();
+  /* segue mesmo sem equipe na tela: a planilha é quem confirma a obra */
+  const achou=true;
+  const linhas=topo();
+  /* quando o topo não traz nada, guardo um pedaço do texto da tela para eu ver o que apareceu */
+  const telaTxt=linhas.length?linhas.slice(0,12)
+    :document.body.innerText.replace(/\\n{2,}/g,"\\n").split("\\n").map(x=>x.trim()).filter(Boolean).slice(0,16);
+  /* o bloco "ULTIMAS ATUALIZAÇÕES" não é o resultado da busca: já veio com a equipe errada.
+     Fica só como referência; equipe e data valem os da planilha. */
+  const reg={equipe:"",data:"",equipeTela:eq,dataTela:linhas[4]||"",itens:[],naoConfirmada:false,
+    limpou,cliqueNoResultado:clicou,tela:telaTxt,botaoBusca:(()=>{const b=btnBuscar(); return b?((b.innerText||"").trim()||b.title||b.getAttribute("aria-label")||"(icone sem texto)"):"nenhum"})()};
+  reg.buscaUsada=usado;
+  const bp=btnPlan();
+  if(!bp){
+    reg.motivo="nao achei o botao de gerar planilha";
+    /* lista o que existe de clicável na tela, para eu descobrir qual é o botão */
+    reg.botoes=clicaveis().map(e=>{
+      const d=descrEl(e).replace(/\\s+/g," ").slice(0,40);
+      return e.tagName.toLowerCase()+(d?" «"+d+"»":"")+(e.className&&typeof e.className==="string"?" ."+e.className.split(/\\s+/).slice(0,2).join("."):"");
+    }).filter((x,i,a)=>a.indexOf(x)===i).slice(0,45);
+  }
+  if(bp){
+    /* a planilha já foi pedida dentro do laço das variantes */
+    if(!cap.length) reg.motivo=avisos.length? "a pagina respondeu: "+avisos.join(" | ")
+                                            : "a planilha nao foi gerada a tempo";
+    if(cap.length){
+      const L=await lerZip(cap[cap.length-1]); let secao="";
+      /* confere o número da obra dentro da planilha: se vier outra, descarta */
+      const cabObra=(L.find(c=>c.A&&/^OBRA/i.test(String(c.A)))||{}).B;
+      /* a planilha pode trazer o número sem os zeros da frente: comparo só os dígitos significativos */
+      reg.obraArquivo=cabObra===undefined?"":String(cabObra).trim();
+      if(cabObra && normObra(cabObra)!==normObra(obra)){
+        console.warn("descartado: pesquisei",obra,"e a planilha veio da obra",String(cabObra).trim());
+        reg.naoConfirmada=true;
+        reg.motivo="a planilha veio da obra "+String(cabObra).trim()+", nao da pesquisada";
+        res.obras[obra]=reg;
+        passo(i+1,"obra "+obra+" — resultado nao confere, descartado");
+        continue;
+      }
+      /* equipe e data saem da planilha, que é da obra certa */
+      const acha=re=>{const l=L.find(c=>Object.values(c).some(v=>re.test(String(v))));
+        if(!l) return ""; const ks=Object.keys(l), i=ks.findIndex(k=>re.test(String(l[k])));
+        return (i>=0&&ks[i+1])?String(l[ks[i+1]]).trim():""};
+      reg.equipe=acha(/^\\s*equipe/i)||"";
+      reg.data=acha(/^\\s*data/i)||"";
+      /* a data pode vir na própria linha do serviço ou num cabeçalho acima dele:
+         guardo a última data vista e uso quando a linha não trouxer a sua */
+      const achaData=v=>{const m=String(v).match(/\\b\\d{2}\\/\\d{2}\\/\\d{4}\\b/); return m?m[0]:""};
+      /* as colunas vêm do cabeçalho da planilha; B/D/E/G é só o padrão antigo */
+      let COL={cod:"B",desc:"D",qtd:"E",vlr:"G"};
+      for(const c of L){
+        const achaCol=re=>Object.keys(c).find(k=>re.test(String(c[k])));
+        const kc=achaCol(/^\\s*c[oó]d/i), kq=achaCol(/quant|^\\s*qtd/i);
+        if(kc&&kq){ COL={cod:kc,desc:achaCol(/descri|servi[cç]o/i)||"D",qtd:kq,
+          vlr:achaCol(/valor|total|R\\$/i)||"G"}; break }
+      }
+      const num=v=>parseFloat(String(v==null?"":v).replace(/[^\\d,.-]/g,"").replace(/\\.(?=\\d{3}\\b)/g,"").replace(",","."))||0;
+      let dataCtx="";
+      for(const c of L){
+        let dataLinha="";
+        for(const v of Object.values(c)){ const d=achaData(v); if(d){ dataLinha=d; break } }
+        if(dataLinha) dataCtx=dataLinha;
+        const linhaTxt=Object.values(c).join(" ");
+        if(/INSTALAR|RETIRAR/i.test(linhaTxt) && c[COL.qtd]===undefined) secao=/INSTALAR/i.test(linhaTxt)?"I":"R";
+        const cod=c[COL.cod]===undefined?"":String(c[COL.cod]).trim();
+        if(/^\\d{3,6}$/.test(cod) && c[COL.qtd]!==undefined)
+          reg.itens.push({op:secao,cod,desc:c[COL.desc]||"",data:dataLinha||dataCtx,
+            qtd:num(c[COL.qtd]), vlr:num(c[COL.vlr])});
+      }
+      reg.colunas=COL;
+      if(!reg.itens.length){
+        reg.motivo="a planilha veio com "+L.length+" linhas, mas nenhuma virou serviço (colunas "+
+          COL.cod+"/"+COL.qtd+")";
+        reg.amostra=L.slice(0,20);
+      }
+    }
+  }
+  res.obras[obra]=reg;
+  console.log(obra, reg.equipe||"(nao encontrada no termometro)", reg.itens.length+" itens");
+}
+restaurar();
+const seg=Math.round((Date.now()-t0)/1000);
+const comApont=Object.values(res.obras).filter(o=>o.itens.length).length;
+const txt=JSON.stringify(res);
+let copiou=false;
+try{await navigator.clipboard.writeText(txt); copiou=true}catch(e){window.__resultado=txt}
+painel.innerHTML='<div style="font-weight:800;color:#86efac;font-size:15px;margin-bottom:6px">✅ Coleta concluída</div>'+
+ '<div style="color:#e8eefc"><b>'+OBRAS.length+'</b> obras em <b>'+seg+'s</b> · '+comApont+' com apontamento · coletor v'+VERSAO+'</div>'+
+ '<div style="color:#93a3bf;margin-top:6px">'+(copiou
+   ? 'Resultado copiado. Volte ao sistema, cole no campo e clique em <b>Aplicar</b>.'
+   : 'Nao consegui copiar: rode <b>copy(window.__resultado)</b> no console.')+'</div>'+
+ '<button id="__cf" style="margin-top:10px;padding:6px 12px;border-radius:8px;border:0;background:#2563eb;color:#fff;'+
+ 'font:600 12px system-ui;cursor:pointer">Fechar</button>';
+document.getElementById("__cf").onclick=()=>painel.remove();
+setTimeout(()=>{if(painel.isConnected)painel.remove()},60000);
+alert("Coleta concluida: "+OBRAS.length+" obras em "+seg+"s.\\n"+(copiou?"Resultado copiado — cole no sistema.":"Rode copy(window.__resultado) no console."));
+return "Concluido: "+OBRAS.length+" obras em "+seg+"s";
+})()`;
+}
+
+const bookmarklet=()=>"javascript:"+encodeURIComponent(scriptColeta().replace(/\/\*[\s\S]*?\*\//g,"").trim());
+$("termoAbrir").onclick=()=>window.open(TERMO_URL,"_blank","noopener");
+const faltaObras=()=>porLista()&&!lerObras().length;
+$("termoMostrar").onclick=()=>{
+  if(faltaObras()){$("colaRes").innerHTML='<span class="bad">❌ Informe as obras no passo 1.</span>';return}
+  const t=$("cola"); t.value=bookmarklet(); t.focus(); t.select();
+  $("colaRes").innerHTML="O endereço está no campo acima, já selecionado — copie com <b>Ctrl+C</b> e cole na URL do favorito. Copie tudo.";
+};
+$("termoMarcador").onclick=async()=>{
+  if(faltaObras()){$("colaRes").innerHTML='<span class="bad">❌ Informe as obras no passo 1.</span>';return}
+  const bm=bookmarklet();
+  const alvo=nnum(lerObras().length)+" obras da lista";
+  try{await navigator.clipboard.writeText(bm);
+    $("colaRes").innerHTML="✅ Coletor copiado ("+alvo+"). Cole no campo <b>URL</b> de um favorito novo (ou atualize o que já existe) e depois clique nele dentro do termômetro.";}
+  catch(e){const t=$("cola"); t.value=bm; t.select();
+    $("colaRes").innerHTML="Está no campo acima: selecione tudo, copie e cole na URL de um favorito novo.";}
+};
+
+/* ---------- diagnóstico da tela (só descreve a estrutura, não envia nada) ---------- */
+function scriptDiag(){
+  return `(async()=>{
+const d={url:location.href,titulo:document.title,quando:new Date().toISOString(),selects:[],tabelas:[],paginacao:[],candidatos:[],apis:[]};
+document.querySelectorAll("select").forEach((s,i)=>d.selects.push({i,nome:s.name||s.id||"",
+  valor:s.value,opcoes:[...s.options].slice(0,14).map(o=>o.text.trim())}));
+document.querySelectorAll("table").forEach((t,i)=>{
+  const cab=[...t.querySelectorAll("thead th,tr:first-child th,tr:first-child td")].map(x=>x.innerText.trim()).slice(0,12);
+  const l1=[...t.querySelectorAll("tbody tr")].slice(0,2).map(r=>[...r.cells].map(c=>c.innerText.trim()).slice(0,12));
+  d.tabelas.push({i,linhas:t.querySelectorAll("tbody tr").length,cabecalho:cab,exemplos:l1});
+});
+[...document.querySelectorAll("button,a,[role='button']")].forEach(b=>{
+  const t=((b.innerText||"")+" "+(b.getAttribute("aria-label")||"")).trim();
+  if(t && t.length<24 && /p[aá]gina|pr[oó]xim|next|anterior|[<>»«]|\\d+/.test(t.toLowerCase()))
+    d.paginacao.push({texto:t,tag:b.tagName,desab:!!b.disabled});
+});
+d.paginacao=d.paginacao.slice(0,25);
+const set=new Set();
+document.querySelectorAll("td,[role='cell'],[role='gridcell']").forEach(c=>{
+  const t=(c.innerText||"").trim(); if(/^\\d{4,14}$/.test(t)) set.add(t)});
+d.candidatos={quantos:set.size,amostra:[...set].slice(0,15)};
+try{ d.apis=performance.getEntriesByType("resource").map(r=>r.name)
+  .filter(u=>!/\\.(js|css|png|jpg|svg|woff2?|ico)(\\?|$)/i.test(u)).slice(-25) }catch(e){}
+const txt=JSON.stringify(d,null,1);
+let ok=false; try{await navigator.clipboard.writeText(txt); ok=true}catch(e){window.__diag=txt}
+alert(ok?"Diagnostico copiado — cole no chat.":"Rode copy(window.__diag) no console.");
+})()`;
+}
+/* ---------- baixar CSV ----------
+   o link precisa estar no documento para o clique valer em todos os navegadores;
+   se o download for bloqueado (acontece ao abrir por file://), abro numa aba nova */
+function baixarCsv(nome,linhas){
+  const esc=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+  const txt="﻿"+linhas.map(l=>l.map(esc).join(";")).join("\r\n");
+  const blob=new Blob([txt],{type:"text/csv;charset=utf-8"});
+  try{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download=nome; a.style.display="none";
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{a.remove(); URL.revokeObjectURL(url)},4000);
+    return "⬇️ "+nome;
+  }catch(e){
+    const w=window.open("","_blank");
+    if(w){ w.document.write("<pre>"+txt.replace(/[<&]/g,c=>c==="<"?"&lt;":"&amp;")+"</pre>"); w.document.close();
+      return "o download foi bloqueado — o conteúdo abriu numa aba, salve com Ctrl+S" }
+    return "não consegui baixar: "+(e.message||e);
+  }
+}
+
+/* ---------- recomeçar do zero ---------- */
+$("limparColeta").onclick=()=>{
+  COLETA=null; CODIGOS=[]; DESCR=new Map(); sortKey=null; sortDir=1;
+  $("cola").value=""; $("colaRes").innerHTML="🧹 Coleta limpa — cole uma nova e clique em Aplicar.";
+  $("selServ").innerHTML='<option value="">— aplique uma coleta primeiro —</option>';
+  $("codManual").value=""; $("q").value=""; $("fop").value="";
+  $("fmes").innerHTML='<option value="">Todos os meses</option>';
+  $("bruto").hidden=true; $("verBruto").hidden=true;
+  $("boxSem").hidden=true; $("res").hidden=true; $("vazio").hidden=false;
+  try{localStorage.removeItem("bso_coleta")}catch(e){}
+  $("recarregar").hidden=true;
+  pintarChips();
+};
+
+/* ---------- obras que vieram sem nenhum serviço ---------- */
+const semApontamento=()=>!COLETA?[]:Object.entries(COLETA.obras)
+  .filter(([,o])=>!(o.itens||[]).length)
+  .map(([obra,o])=>({obra,equipe:o.equipe||o.equipeTela||"",data:o.data||o.dataTela||"",
+    motivo:o.motivo||(o.naoConfirmada?"nao confirmada":"a obra existe, mas nao tem serviço apontado")}))
+  .sort((a,b)=>String(a.obra).localeCompare(String(b.obra)));
+
+function renderSem(){
+  const S=semApontamento();
+  $("boxSem").hidden=!S.length;
+  if(!S.length) return;
+  const tot=Object.keys(COLETA.obras).length;
+  $("semQtd").textContent=`${nnum(S.length)} de ${nnum(tot)} obras coletadas`;
+  $("semLista").innerHTML=`<table><thead><tr><th>Obra</th><th>Equipe</th><th>Data</th><th>Por quê</th></tr></thead><tbody>`+
+    S.map(x=>`<tr><td><b>${x.obra}</b></td><td>${x.equipe||'<span class="muted">—</span>'}</td>
+      <td class="muted">${x.data||""}</td><td class="muted">${x.motivo}</td></tr>`).join("")+`</tbody></table>`;
+}
+$("semAlternar").onclick=()=>{
+  const l=$("semLista"); l.hidden=!l.hidden;
+  $("semAlternar").textContent=l.hidden?"mostrar":"ocultar";
+};
+$("semCopiar").onclick=async()=>{
+  const nums=semApontamento().map(x=>x.obra);
+  try{await navigator.clipboard.writeText(nums.join("\n")); $("semQtd").textContent=`📋 ${nnum(nums.length)} números copiados`}
+  catch(e){ $("semQtd").textContent="não consegui copiar — use o CSV" }
+};
+$("semCsv").onclick=()=>{
+  const S=semApontamento();
+  if(!S.length){ $("semQtd").textContent="nada para baixar"; return }
+  $("semQtd").textContent=baixarCsv("obras-sem-apontamento.csv",
+    [["Obra","Equipe","Data","Motivo"],...S.map(x=>[x.obra,x.equipe,x.data,x.motivo])]);
+};
+
+/* ---------- mostrar, em texto, o que a coleta trouxe de cada obra ---------- */
+$("verBruto").onclick=()=>{
+  const p=$("bruto");
+  if(!p.hidden){ p.hidden=true; return }
+  if(!COLETA){ p.textContent="Nenhuma coleta aplicada."; p.hidden=false; return }
+  const L=[`coletor v${COLETA.v||"antigo (sem versão)"} · gerado ${new Date(COLETA.gerado||Date.now()).toLocaleString("pt-BR")}`];
+  if(COLETA.mes) L.push(`mês pedido: ${COLETA.mes}/${COLETA.ano||""}`);
+  if(COLETA.lista) L.push(`listagem: ${JSON.stringify(COLETA.lista)}`);
+  for(const [obra,o] of Object.entries(COLETA.obras)){
+    L.push("",`── OBRA ${obra} ──`);
+    L.push(`equipe: ${o.equipe||"(vazio)"} · data: ${o.data||"(vazio)"} · itens: ${(o.itens||[]).length}`);
+    if(o.obraArquivo!==undefined) L.push(`obra dentro da planilha: ${o.obraArquivo||"(não achei a linha OBRA)"}`);
+    if(o.colunas) L.push(`colunas usadas: ${JSON.stringify(o.colunas)}`);
+    if(o.limpou!==undefined) L.push(`limpou a busca antes: ${o.limpou}`);
+    if(o.botaoBusca) L.push(`botão de busca usado: ${o.botaoBusca}`);
+    if(o.cliqueNoResultado!==undefined) L.push(`clicou no resultado da busca: ${o.cliqueNoResultado}`);
+    if(o.buscaUsada) L.push(`texto pesquisado que valeu: "${o.buscaUsada}"`);
+    if(o.equipeTela) L.push(`equipe que estava na tela (não confiável): ${o.equipeTela} · ${o.dataTela||""}`);
+    if(o.motivo) L.push(`motivo de não ter serviço: ${o.motivo}`);
+    if(o.tela&&o.tela.length) L.push(`texto da tela: ${JSON.stringify(o.tela)}`);
+    if(o.botoes&&o.botoes.length){ L.push("clicáveis na tela:"); o.botoes.forEach(b=>L.push("  · "+b)) }
+    if(o.amostra&&o.amostra.length){
+      L.push("primeiras linhas da planilha:");
+      o.amostra.forEach((c,i)=>L.push("  "+(i+1)+": "+JSON.stringify(c)));
+    }
+    if((o.itens||[]).length) L.push("itens: "+JSON.stringify(o.itens.slice(0,10)));
+  }
+  p.textContent=L.join("\n"); p.hidden=false;
+};
+
+/* ---------- teste de uma obra só, contando cada etapa ---------- */
+function scriptTeste(obra){
+  return `(async()=>{
+const OBRA=${JSON.stringify(String(obra))};
+const log=[]; const reg=(k,v)=>{log.push(k+": "+(typeof v==="string"?v:JSON.stringify(v)))};
+const espera=ms=>new Promise(r=>setTimeout(r,ms));
+const ate=async(c,max=6000,p=150)=>{const t0=Date.now();while(Date.now()-t0<max){if(c())return true;await espera(p)}return false};
+const cap=[]; const oURL=URL.createObjectURL, oClick=HTMLAnchorElement.prototype.click,
+  oDisp=EventTarget.prototype.dispatchEvent, oSave=window.saveAs, oMs=navigator.msSaveBlob, oOpen=window.open;
+const ehDl=el=>{try{return el instanceof HTMLAnchorElement && el.hasAttribute("download")}catch(e){return false}};
+URL.createObjectURL=function(b){try{cap.push(b)}catch(e){}return oURL.call(URL,b)};
+window.saveAs=function(b){try{if(b)cap.push(b)}catch(e){}};
+navigator.msSaveBlob=function(b){try{if(b)cap.push(b)}catch(e){}return true};
+HTMLAnchorElement.prototype.click=function(){if(ehDl(this))return; return oClick.call(this)};
+EventTarget.prototype.dispatchEvent=function(ev){if(ev&&ev.type==="click"&&ehDl(this))return true; return oDisp.call(this,ev)};
+window.open=function(u){if(typeof u==="string"&&u.startsWith("blob:"))return null; return oOpen.apply(window,arguments)};
+const restaurar=()=>{URL.createObjectURL=oURL;window.saveAs=oSave;navigator.msSaveBlob=oMs;
+  HTMLAnchorElement.prototype.click=oClick;EventTarget.prototype.dispatchEvent=oDisp;window.open=oOpen};
+try{
+reg("url",location.href);
+const ins=[...document.querySelectorAll("input")];
+reg("inputs",ins.map((e,i)=>i+":"+(e.placeholder||e.name||e.type)));
+const bts=[...document.querySelectorAll("button")];
+reg("botoes",bts.map((b,i)=>i+":"+((b.innerText||"").trim().slice(0,22)||"(sem texto)")+(b.title?" |title="+b.title:"")).slice(0,40));
+let inp=ins.find(e=>e.placeholder==="Pesquisar OBRA")||ins.find(e=>/pesquisar.*obra/i.test(e.placeholder||""));
+reg("achouCampoBusca",!!inp);
+if(!inp){reg("PAROU","nao achei o campo de busca");throw 0}
+const setVal=(el,v)=>{Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,"value").set.call(el,v);
+  el.dispatchEvent(new Event("input",{bubbles:true}))};
+const topo=()=>{const t=document.body.innerText,i=t.indexOf("ULTIMAS");
+  return i<0?[]:t.slice(i,i+400).split("\\n").map(x=>x.trim()).filter(Boolean)};
+reg("achouULTIMAS",document.body.innerText.indexOf("ULTIMAS")>=0);
+reg("topoAntes",topo().slice(0,6));
+const equipeNaTela=()=>{const l=topo()[1]||"";return(!/Funcion|%|R\\$/.test(l)&&l)?l:""};
+setVal(inp,OBRA); await espera(200);
+const btBusca=bts[1];
+reg("botaoBuscaUsado", btBusca?((btBusca.innerText||"").trim()||"(indice 1, sem texto)"):"nenhum");
+if(btBusca) btBusca.click();
+inp.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",keyCode:13,bubbles:true}));
+const ok=await ate(()=>!!equipeNaTela(),6000);
+reg("apareceuEquipe",ok); reg("topoDepois",topo().slice(0,6)); reg("equipeLida",equipeNaTela());
+const bp=bts.find(b=>b.title==="Gerar Planilha Simplificado")
+  ||[...document.querySelectorAll("button")].find(b=>/planilha/i.test((b.title||"")+(b.innerText||"")));
+reg("achouBotaoPlanilha",!!bp); if(bp) reg("botaoPlanilha",((bp.innerText||"").trim()||"")+" |title="+(bp.title||""));
+if(bp){
+  cap.length=0; bp.click();
+  const veio=await ate(()=>cap.length>0,9000);
+  reg("capturouArquivo",veio); reg("qtdArquivos",cap.length);
+  if(cap.length){
+    const blob=cap[cap.length-1]; reg("tamanhoBytes",blob.size); reg("tipo",blob.type||"(sem tipo)");
+    const buf=new Uint8Array(await blob.arrayBuffer()), dv=new DataView(buf.buffer);
+    reg("assinaturaZip",String.fromCharCode(buf[0],buf[1]));
+    let eo=-1; for(let i=buf.length-22;i>=0;i--){if(dv.getUint32(i,true)===0x06054b50){eo=i;break}}
+    reg("achouFimDoZip",eo>=0);
+    if(eo>=0){
+      const n=dv.getUint16(eo+10,true); let p=dv.getUint32(eo+16,true); const arqs={};
+      for(let k=0;k<n;k++){const nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true);
+        arqs[new TextDecoder().decode(buf.subarray(p+46,p+46+nl))]={m:dv.getUint16(p+10,true),lho:dv.getUint32(p+42,true),cs:dv.getUint32(p+20,true)};
+        p+=46+nl+el+cl}
+      reg("arquivosNoZip",Object.keys(arqs));
+      const ler=async nome=>{const a=arqs[nome]; if(!a) return "";
+        const nl=dv.getUint16(a.lho+26,true),el=dv.getUint16(a.lho+28,true),ini=a.lho+30+nl+el,d=buf.subarray(ini,ini+a.cs);
+        return a.m===0? new TextDecoder().decode(d)
+          : await new Response(new Blob([d]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text()};
+      const nomeSheet=Object.keys(arqs).find(k=>/worksheets\\/sheet1\\.xml$/.test(k))||"xl/worksheets/sheet1.xml";
+      reg("planilhaLida",nomeSheet);
+      const ss=await ler(Object.keys(arqs).find(k=>/sharedStrings\\.xml$/.test(k))||"xl/sharedStrings.xml");
+      const S=[...ss.matchAll(/<si>(.*?)<\\/si>/gs)].map(m=>[...m[1].matchAll(/<t[^>]*>(.*?)<\\/t>/gs)].map(x=>x[1]).join(""));
+      reg("textosNaPlanilha",S.length);
+      const sh=await ler(nomeSheet); const L=[];
+      for(const m of sh.matchAll(/<row[^>]*r="(\\d+)"[^>]*>(.*?)<\\/row>/gs)){
+        const c={};
+        for(const cel of m[2].matchAll(/<c r="([A-Z]+)\\d+"([^>]*)>(?:<v>(.*?)<\\/v>|<is>.*?<t[^>]*>(.*?)<\\/t>.*?<\\/is>)?<\\/c>/gs)){
+          const v=cel[4]!==undefined?cel[4]:(cel[3]===undefined?"":(/t="s"/.test(cel[2]||"")?S[+cel[3]]:cel[3]));
+          if(v!=="") c[cel[1]]=v;
+        }
+        if(Object.keys(c).length) L.push(c);
+      }
+      reg("linhasLidas",L.length);
+      const norm=v=>String(v||"").replace(/\\D/g,"").replace(/^0+/,"");
+      const cabObra=(L.find(c=>c.A&&/^OBRA/i.test(String(c.A)))||{}).B;
+      reg("obraNoArquivo",cabObra===undefined?"(nao achei a linha OBRA)":String(cabObra).trim());
+      reg("obraConfere",cabObra===undefined?"(sem comparar)":(norm(cabObra)===norm(OBRA)));
+      reg("primeiras25linhas",L.slice(0,25));
+      const itens=L.filter(c=>c.B&&/^\\d{4,5}$/.test(String(c.B).trim())&&c.E!==undefined);
+      reg("linhasQueViramItem",itens.length);
+      reg("exemploItem",itens[0]||"(nenhuma)");
+    }
+  }
+}
+}catch(e){ if(e) reg("ERRO",(e&&e.message)||String(e)) }
+restaurar();
+const txt="TESTE DA OBRA "+OBRA+"\\n"+log.join("\\n");
+let ok2=false; try{await navigator.clipboard.writeText(txt); ok2=true}catch(e){window.__teste=txt}
+console.log(txt);
+alert(ok2?"Teste copiado — cole no chat.":"Rode copy(window.__teste) no console.");
+})()`;
+}
+$("teste").onclick=async()=>{
+  const o=($("obraTeste").value.match(/\d+/)||[])[0];
+  if(!o){$("colaRes").innerHTML='<span class="bad">❌ Escreva o número de uma obra para testar.</span>';return}
+  const bm="javascript:"+encodeURIComponent(scriptTeste(o).trim());
+  try{await navigator.clipboard.writeText(bm);
+    $("colaRes").innerHTML=`🧪 Teste da obra <b>${o}</b> copiado. Cole na URL de um favorito, abra o termômetro e clique nele — ele conta etapa por etapa o que achou. Me mande o texto que ele copiar.`;}
+  catch(e){const t=$("cola"); t.value=bm; t.select();
+    $("colaRes").innerHTML="Está no campo acima: copie e cole na URL de um favorito.";}
+};
+
+$("diag").onclick=async()=>{
+  const bm="javascript:"+encodeURIComponent(scriptDiag().trim());
+  try{await navigator.clipboard.writeText(bm);
+    $("colaRes").innerHTML="🩺 Diagnóstico copiado. Cole na URL de um favorito, abra o termômetro no mês desejado e clique nele — depois me mande o texto que ele copiar.";}
+  catch(e){const t=$("cola"); t.value=bm; t.select();
+    $("colaRes").innerHTML="Está no campo acima: copie e cole na URL de um favorito.";}
+};
+
+/* ---------- estado ---------- */
+let COLETA=null;          /* {gerado, obras:{num:{equipe,data,itens[]}}} */
+let CODIGOS=[];           /* códigos de serviço procurados */
+let DESCR=new Map();      /* cod -> descrição */
+let sortKey=null, sortDir=1;
+
+function aplicarColeta(dados,silencioso){
+  if(!dados||!dados.obras) throw new Error("sem obras");
+  COLETA=dados;
+  DESCR=new Map();
+  const cont=new Map();   /* código -> em quantas obras aparece */
+  for(const o of Object.values(dados.obras)){
+    const vistos=new Set();
+    for(const it of (o.itens||[])){
+      if(it.desc&&!DESCR.has(it.cod)) DESCR.set(it.cod,it.desc);
+      if(!vistos.has(it.cod)){ vistos.add(it.cod); cont.set(it.cod,(cont.get(it.cod)||0)+1) }
+    }
+  }
+  const unicos=[...cont.keys()].sort((a,b)=>String(DESCR.get(a)||a).localeCompare(String(DESCR.get(b)||b),"pt-BR"));
+  const sel=$("selServ");
+  sel.innerHTML='<option value="">— escolha um serviço —</option>'+unicos.map(c=>{
+    const n=cont.get(c)||0;
+    return `<option value="${c}">${c} — ${DESCR.get(c)||"(sem descrição)"} (${n} obra${n>1?"s":""})</option>`;
+  }).join("");
+  const nObras=Object.keys(dados.obras).length;
+  const comApont=Object.values(dados.obras).filter(o=>(o.itens||[]).length).length;
+  const alvo=dados.mes? ` do mês de <b>${dados.mes}${dados.ano?"/"+dados.ano:""}</b>`:"";
+  const av=(dados.lista&&dados.lista.avisos||[]).filter(a=>a!=="lista digitada pelo usuario");
+  /* por que uma obra veio sem serviço: o coletor grava o motivo em cada obra */
+  const motivos=new Map();
+  for(const o of Object.values(dados.obras)) if(!(o.itens||[]).length&&o.motivo)
+    motivos.set(o.motivo,(motivos.get(o.motivo)||0)+1);
+  const porQue=[...motivos.entries()].sort((a,b)=>b[1]-a[1])
+    .map(([m,n])=>`${n}× ${m}`).join(" · ");
+  const velho=(dados.v||0)<VERSAO;
+  if(!silencioso) $("colaRes").innerHTML=`✅ Coleta aplicada${alvo}: <b>${nnum(nObras)}</b> obras · <b>${nnum(comApont)}</b> com apontamento · <b>${nnum(unicos.length)}</b> serviços distintos.`+
+    (av.length?` <span class="bad">⚠️ ${av.join(" · ")}</span>`:"")+
+    (porQue?`<br><span class="muted">Sem serviço: ${porQue}</span>`:"")+
+    (velho?`<br><span class="bad">⚠️ Esta coleta veio de um <b>coletor antigo</b> (versão ${dados.v||"?"}, a atual é ${VERSAO}).
+      Clique em <b>Copiar o coletor</b> aqui em cima, <b>troque a URL do favorito</b> pela nova e colete de novo —
+      as correções da leitura da planilha só valem para o coletor novo.</span>`:"");
+  LS.set("bso_coleta",JSON.stringify(dados));
+  $("recarregar").hidden=true;
+  $("verBruto").hidden=false; $("bruto").hidden=true;
+  renderSem();
+  pintarChips(); render();
+}
+$("aplicar").onclick=()=>{
+  let d; try{d=JSON.parse($("cola").value.trim())}catch(e){
+    $("colaRes").innerHTML='<span class="bad">❌ O conteúdo colado não é um resultado válido do termômetro.</span>';return}
+  try{aplicarColeta(d)}catch(e){$("colaRes").innerHTML='<span class="bad">❌ Faltam as obras no conteúdo colado.</span>'}
+};
+(()=>{ const s=LS.get("bso_coleta"); if(!s) return;
+  $("recarregar").hidden=false;
+  $("recarregar").onclick=()=>{ try{ aplicarColeta(JSON.parse(s),true);
+    $("colaRes").innerHTML=`↩️ Última coleta recarregada (de ${new Date(COLETA.gerado||Date.now()).toLocaleString("pt-BR")}).`;
+  }catch(e){$("colaRes").innerHTML='<span class="bad">❌ A coleta guardada está corrompida.</span>'} };
+})();
+
+/* ---------- códigos procurados ---------- */
+function addCods(txt){
+  const novos=(String(txt).match(/\d{3,6}/g)||[]);
+  for(const c of novos) if(!CODIGOS.includes(c)) CODIGOS.push(c);
+  pintarChips(); render();
+}
+$("selServ").onchange=e=>{ if(e.target.value){addCods(e.target.value); e.target.value=""} };
+$("addCod").onclick=()=>{ addCods($("codManual").value); $("codManual").value="" };
+$("codManual").addEventListener("keydown",e=>{ if(e.key==="Enter"){addCods($("codManual").value); $("codManual").value=""} });
+$("limparCods").onclick=()=>{ CODIGOS=[]; pintarChips(); render() };
+function pintarChips(){
+  $("chips").innerHTML = CODIGOS.length? CODIGOS.map(c=>
+    `<span class="chip"><b>${c}</b> ${DESCR.get(c)?`<span class="muted">${DESCR.get(c)}</span>`:""}<button data-c="${c}" title="Remover">✕</button></span>`).join("")
+    : '<span class="muted" style="font-size:12.5px">Nenhum código escolhido ainda.</span>';
+  $("chips").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    CODIGOS=CODIGOS.filter(c=>c!==b.dataset.c); pintarChips(); render()});
+}
+pintarChips();
+
+/* ---------- resultado ---------- */
+/* ---------- mês ---------- */
+/* a data do serviço vem da planilha; quando ela não traz, vale a última data da obra */
+const MES_NOME=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const chaveMes=d=>{const m=String(d||"").match(/^(\d{2})\/(\d{2})\/(\d{4})$/); return m? m[3]+"-"+m[2] : ""};
+const rotuloMes=k=>{const [a,m]=k.split("-"); return (MES_NOME[+m-1]||m)+"/"+a};
+const dataDoItem=(it,o)=>it.data||o.data||"";
+/* dd/mm/aaaa não ordena como texto: viro para aaaammdd */
+const ordData=d=>{const m=String(d||"").match(/^(\d{2})\/(\d{2})\/(\d{4})$/); return m? m[3]+m[2]+m[1] : ""};
+
+/* todos os itens dos códigos escolhidos, antes dos filtros da barra */
+function itensEscolhidos(){
+  const out=[];
+  if(!COLETA||!CODIGOS.length) return out;
+  for(const [obra,o] of Object.entries(COLETA.obras))
+    for(const it of (o.itens||[]))
+      if(CODIGOS.includes(String(it.cod))) out.push({obra,o,it,data:dataDoItem(it,o)});
+  return out;
+}
+/* o select de mês é montado sobre os códigos escolhidos, sem se filtrar a si mesmo */
+function montarMeses(){
+  const sel=$("fmes"), antes=sel.value;
+  const cont=new Map();
+  for(const x of itensEscolhidos()){ const k=chaveMes(x.data); if(k) cont.set(k,(cont.get(k)||0)+1) }
+  const ks=[...cont.keys()].sort().reverse();
+  sel.innerHTML='<option value="">Todos os meses</option>'+
+    ks.map(k=>`<option value="${k}">${rotuloMes(k)} (${cont.get(k)} lanç.)</option>`).join("")+
+    (itensEscolhidos().some(x=>!chaveMes(x.data))?'<option value="__sem">Sem data na planilha</option>':"");
+  sel.value=[...sel.options].some(o=>o.value===antes)?antes:"";
+  return ks.length;
+}
+
+/* uma linha por obra + operação + código + data, já somando repetições */
+function linhas(){
+  if(!COLETA||!CODIGOS.length) return [];
+  const q=$("q").value.trim().toLowerCase(), fop=$("fop").value, fmes=$("fmes").value;
+  const porObraMap=new Map();
+  for(const x of itensEscolhidos()){
+    if(fop && x.it.op!==fop) continue;
+    const k=chaveMes(x.data);
+    if(fmes==="__sem"? !!k : (fmes && k!==fmes)) continue;
+    if(q && !((x.obra+" "+(x.o.equipe||"")).toLowerCase().includes(q))) continue;
+    const acc=porObraMap.get(x.obra)||new Map(); porObraMap.set(x.obra,acc);
+    const kk=x.it.op+"|"+x.it.cod+"|"+x.data;
+    const a=acc.get(kk)||{obra:x.obra,equipe:x.o.equipe||"",data:x.data,mes:k?rotuloMes(k):"—",
+      op:x.it.op||"x",cod:x.it.cod,desc:x.it.desc||DESCR.get(x.it.cod)||"",qtd:0,vlr:0};
+    a.qtd+=(+x.it.qtd||0); a.vlr+=(+x.it.vlr||0); acc.set(kk,a);
+  }
+  const out=[];
+  for(const acc of porObraMap.values()) out.push(...acc.values());
+  return out;
+}
+function porObra(){
+  const m=new Map();
+  for(const l of linhas()){
+    const g=m.get(l.obra)||{obra:l.obra,equipe:l.equipe,data:l.data,qtd:0,vlr:0,cods:new Set(),ops:new Set(),meses:new Set()};
+    g.qtd+=l.qtd; g.vlr+=l.vlr; g.cods.add(l.cod); g.ops.add(l.op); g.meses.add(l.mes);
+    if(ordData(l.data)>ordData(g.data)) g.data=l.data;
+    m.set(l.obra,g);
+  }
+  return [...m.values()];
+}
+function ordenar(arr){
+  if(!sortKey) return arr.sort((a,b)=>String(a.obra).localeCompare(String(b.obra)));
+  return arr.sort((a,b)=>{
+    const x=a[sortKey],y=b[sortKey];
+    const r = (typeof x==="number"&&typeof y==="number") ? x-y : String(x??"").localeCompare(String(y??""),"pt-BR");
+    return r*sortDir;
+  });
+}
+function render(){
+  const temResultado = !!(COLETA&&CODIGOS.length);
+  $("vazio").hidden=temResultado;
+  $("res").hidden=!temResultado;
+  if(!temResultado) return;
+  const comMes=montarMeses();
+  const agrup=$("agrup").checked;
+  const dados = agrup? porObra() : linhas();
+
+  const obrasComp=new Set(dados.map(d=>d.obra)).size;
+  const totObras=Object.keys(COLETA.obras).length;
+  const qtd=dados.reduce((s,d)=>s+d.qtd,0), vlr=dados.reduce((s,d)=>s+d.vlr,0);
+  const naoEnc=Object.values(COLETA.obras).filter(o=>!(o.itens||[]).length).length;
+  $("cards").innerHTML=`
+    <div class="card ok"><div class="lbl">Obras com o serviço</div><div class="val">${nnum(obrasComp)}</div></div>
+    <div class="card"><div class="lbl">De um total de</div><div class="val">${nnum(totObras)}</div></div>
+    <div class="card"><div class="lbl">Quantidade apontada</div><div class="val">${nqtd(qtd)}</div></div>
+    <div class="card"><div class="lbl">Valor apontado</div><div class="val">R$ ${nval(vlr)}</div></div>
+    <div class="card"><div class="lbl">Sem apontamento / não achadas</div><div class="val">${nnum(naoEnc)}</div></div>`;
+
+  const cols = agrup
+    ? [["obra","Obra"],["equipe","Equipe"],["data","Última data"],["meses","Meses"],["cods","Códigos"],["ops","Operação"],["qtd","Qtd.",1],["vlr","Valor (R$)",1]]
+    : [["obra","Obra"],["equipe","Equipe"],["data","Data"],["mes","Mês"],["op","Op."],["cod","Código"],["desc","Serviço"],["qtd","Qtd.",1],["vlr","Valor (R$)",1]];
+  $("thead").innerHTML="<tr>"+cols.map(c=>`<th class="${c[2]?"num":""}" data-k="${c[0]}">${c[1]}${sortKey===c[0]?(sortDir>0?" ▲":" ▼"):""}</th>`).join("")+"</tr>";
+  $("thead").querySelectorAll("th").forEach(th=>th.onclick=()=>{
+    const k=th.dataset.k; sortDir = sortKey===k? -sortDir : 1; sortKey=k; render();
+  });
+
+  ordenar(dados);
+  const opTag=o=>`<span class="tag t-${o==="I"||o==="R"?o:"x"}">${o==="I"?"Instalar":o==="R"?"Retirar":"—"}</span>`;
+  $("tbody").innerHTML = dados.map(d=> agrup
+    ? `<tr><td><b>${d.obra}</b></td><td>${d.equipe||'<span class="muted">—</span>'}</td><td class="muted">${d.data||""}</td>
+        <td>${[...d.meses].join(", ")}</td><td>${[...d.cods].join(", ")}</td><td>${[...d.ops].map(opTag).join(" ")}</td>
+        <td class="num">${nqtd(d.qtd)}</td><td class="num">${nval(d.vlr)}</td></tr>`
+    : `<tr><td><b>${d.obra}</b></td><td>${d.equipe||'<span class="muted">—</span>'}</td><td class="muted">${d.data||""}</td>
+        <td>${d.mes}</td><td>${opTag(d.op)}</td><td>${d.cod}</td><td class="muted">${d.desc||""}</td>
+        <td class="num">${nqtd(d.qtd)}</td><td class="num">${nval(d.vlr)}</td></tr>`).join("")
+    || `<tr><td colspan="${cols.length}" class="muted" style="text-align:center;padding:24px">Nenhuma obra tem os serviços escolhidos com os filtros atuais.</td></tr>`;
+
+  const fmes=$("fmes").value;
+  $("rodape").innerHTML=`${nnum(dados.length)} linha${dados.length===1?"":"s"} · coleta de `+
+    `${new Date(COLETA.gerado||Date.now()).toLocaleString("pt-BR")} · serviços: ${CODIGOS.join(", ")} · `+
+    (fmes==="__sem"? "só lançamentos sem data" : fmes? "mês "+rotuloMes(fmes) : "todos os meses")+
+    (comMes? "" : " · <b>a coleta não trouxe datas</b> — refaça a coleta com o coletor novo para poder filtrar por mês");
+}
+$("q").addEventListener("input",render);
+$("fop").addEventListener("change",render);
+$("fmes").addEventListener("change",render);
+$("agrup").addEventListener("change",()=>{sortKey=null;render()});
+
+/* ---------- saídas ---------- */
+$("copiarObras").onclick=async()=>{
+  const nums=[...new Set(porObra().map(g=>g.obra))].sort();
+  try{await navigator.clipboard.writeText(nums.join("\n")); $("rodape").innerHTML=`📋 ${nnum(nums.length)} números de obra copiados.`}
+  catch(e){ $("rodape").innerHTML="Não consegui copiar — use o CSV." }
+};
+$("csv").onclick=()=>{
+  const agrup=$("agrup").checked, dados=ordenar(agrup?porObra():linhas());
+  const cab = agrup? ["Obra","Equipe","Ultima data","Meses","Codigos","Operacoes","Quantidade","Valor"]
+                   : ["Obra","Equipe","Data","Mes","Operacao","Codigo","Servico","Quantidade","Valor"];
+  const linhasCsv=dados.map(d=> agrup
+    ? [d.obra,d.equipe,d.data,[...d.meses].join(" "),[...d.cods].join(" "),[...d.ops].join(" "),String(d.qtd).replace(".",","),d.vlr.toFixed(2).replace(".",",")]
+    : [d.obra,d.equipe,d.data,d.mes,d.op,d.cod,d.desc,String(d.qtd).replace(".",","),d.vlr.toFixed(2).replace(".",",")]);
+  if(!linhasCsv.length){ $("rodape").textContent="nada para baixar com os filtros atuais"; return }
+  const fmes=$("fmes").value;
+  $("rodape").textContent=baixarCsv(
+    "obras-com-servico-"+CODIGOS.join("-")+(fmes&&fmes!=="__sem"?"-"+fmes:"")+".csv",
+    [cab,...linhasCsv]);
+};
+</script>
+</body>
+</html>
