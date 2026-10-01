@@ -62,6 +62,24 @@ tbody tr:hover{background:var(--head)}
 .ok{color:var(--ok-txt)} .bad{color:var(--bad-txt)}
 ol{font-size:13px;padding-left:20px;line-height:1.75;margin:8px 0 0}
 label.inl{display:inline-flex;align-items:center;gap:6px;font-size:13px}
+button.perigo{border-color:var(--bad);color:var(--bad-txt);background:var(--bad-bg);font-weight:600}
+button.perigo:hover{background:var(--bad);color:#fff}
+.tag.s-ok{background:var(--ok-bg);color:var(--ok-txt);border-color:var(--ok)}
+#barraAnalise{margin-bottom:14px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:12.5px}
+#analisesmodal[hidden],#codigomodal[hidden]{display:none}
+#analisesmodal,#codigomodal{position:fixed;inset:0;background:rgba(2,6,23,.7);display:flex;align-items:flex-start;justify-content:center;padding:24px;z-index:70;overflow:auto}
+#codigomodal{z-index:80}
+.mbox{background:var(--bg);border:1px solid var(--line);border-radius:14px;width:min(720px,100%);box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.mtop{display:flex;gap:8px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);border-radius:14px 14px 0 0;z-index:2}
+.itemAnalise{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.itemAnalise.atual{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+@media (max-width:700px){
+  .itemAnalise{flex-direction:column;align-items:stretch}.itemAnalise button{width:100%}
+  #analisesmodal,#codigomodal{padding:0;align-items:stretch}
+  .mbox{border-radius:0;min-height:100vh;max-width:100%}
+  .mtop{flex-wrap:wrap;gap:6px;padding:10px;border-radius:0}
+  .mtop strong{width:100%} .mtop button{flex:1 1 auto}
+}
 </style>
 </head>
 <body>
@@ -71,10 +89,15 @@ label.inl{display:inline-flex;align-items:center;gap:6px;font-size:13px}
     <div class="sub">Lista todas as obras que tiveram um serviço específico apontado, buscando pelo código do serviço.</div>
   </div>
   <span style="flex:1"></span>
+  <button class="sec" id="btnSalvar" title="Atualizar a análise aberta ou guardar mais uma">💾 Salvar análise</button>
+  <button class="sec" id="btnCodigoAtual" title="Salvar e gerar o código de recuperação desta análise">🔑 Código desta análise</button>
+  <button class="sec" id="btnAnalises">📂 Minhas análises</button>
   <button class="sec" id="btnTema">🌙 Tema</button>
 </header>
 
 <div class="wrap">
+
+  <div id="barraAnalise" hidden></div>
 
   <div class="box">
     <h2><span class="passo">1</span>Obras a consultar</h2>
@@ -172,6 +195,55 @@ label.inl{display:inline-flex;align-items:center;gap:6px;font-size:13px}
     <p class="muted" id="rodape" style="font-size:12.5px"></p>
   </div>
 
+</div>
+
+<div id="analisesmodal" hidden>
+  <div class="mbox">
+    <div class="mtop"><strong id="analisesTitulo">Minhas análises</strong><span style="flex:1"></span>
+      <button class="sec" id="analisesFechar">Fechar ✕</button></div>
+    <div style="padding:16px">
+      <p id="analisesSub" class="muted" style="margin-top:0;font-size:12.5px" hidden>
+        Escolha uma análise salva para continuar de onde parou, ou feche esta janela para começar uma nova.</p>
+      <div id="listaAnalises" style="display:flex;flex-direction:column;gap:10px"></div>
+
+      <div style="margin-top:18px;border-top:1px solid var(--line);padding-top:14px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <strong style="font-size:13.5px">🔑 Código de recuperação</strong>
+          <span style="flex:1"></span>
+          <button class="sec" id="btnAbrirRestaurar">Restaurar por código…</button>
+        </div>
+        <p class="muted" style="font-size:12px;margin:6px 0 0">
+          Gere o código de uma análise, guarde-o num arquivo ou no e-mail e cole aqui depois para recuperar tudo —
+          mesmo em outro computador, após atualizar o site ou limpar o cache.</p>
+        <div id="boxRestaurar" hidden style="margin-top:10px">
+          <textarea id="txtCodigo" spellcheck="false" rows="5" placeholder="Cole aqui o código da análise (começa com BSO1-)…"
+            style="font-size:11px"></textarea>
+          <div class="linha" style="margin-top:8px">
+            <button id="btnRestaurarCodigo">Restaurar análise</button>
+            <button class="sec" id="btnArquivoCodigo">📄 Abrir arquivo .txt</button>
+            <input type="file" id="fileCodigo" accept=".txt,text/plain" hidden>
+            <span id="msgCodigo" class="muted" style="font-size:12px"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="codigomodal" hidden>
+  <div class="mbox">
+    <div class="mtop"><strong>🔑 Código da análise</strong><span style="flex:1"></span>
+      <button class="sec" id="codigoFechar">Fechar ✕</button></div>
+    <div style="padding:16px">
+      <p class="muted" style="margin-top:0;font-size:12.5px" id="codigoSub"></p>
+      <textarea id="codigoSaida" readonly spellcheck="false" rows="9" style="font-size:11px"></textarea>
+      <div class="linha" style="margin-top:8px">
+        <button id="codigoCopiar">📋 Copiar código</button>
+        <button class="sec" id="codigoBaixar">⬇️ Baixar .txt</button>
+        <span id="codigoMsg" class="muted" style="font-size:12px"></span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -926,6 +998,264 @@ $("csv").onclick=()=>{
     "obras-com-servico-"+CODIGOS.join("-")+(fmes&&fmes!=="__sem"?"-"+fmes:"")+".csv",
     [cab,...linhasCsv]);
 };
+
+/* ---------- análises salvas (mesmo padrão da análise detalhada de obras pagas) ----------
+   cada análise guarda a lista de obras, a coleta, os códigos escolhidos e os filtros */
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const IDX="bso_analises-index", PREF_AN="bso_analise:", ATUAL="bso_analise-atual";
+let ANALISE_ATUAL=null;
+const lerIndice=()=>{try{return JSON.parse(LS.get(IDX)||"[]")}catch(e){return []}};
+const gravarIndice=l=>LS.set(IDX,JSON.stringify(l));
+const gravarAtual=()=>LS.set(ATUAL,ANALISE_ATUAL?JSON.stringify(ANALISE_ATUAL):"");
+const novoId=()=>"a"+Date.now().toString(36);
+function avisoAnalise(html){ const b=$("barraAnalise"); b.innerHTML=html; b.hidden=!html }
+
+function resumoAtual(){
+  const obras=COLETA?Object.values(COLETA.obras):[];
+  return {obras:obras.length,
+    comApont:obras.filter(o=>(o.itens||[]).length).length,
+    codigos:[...CODIGOS],
+    obrasComServico:CODIGOS.length?new Set(itensEscolhidos().map(x=>x.obra)).size:0};
+}
+function nomeSugerido(){
+  return (CODIGOS.length?"Serviços "+CODIGOS.join(", "):"Coleta")+" — "+new Date().toLocaleDateString("pt-BR");
+}
+function gravarAnalise(id,nome,silencioso){
+  const a={id,nome,quando:new Date().toISOString(),
+    obrasTxt:$("obras").value, coleta:COLETA, codigos:[...CODIGOS],
+    filtros:{q:$("q").value,fop:$("fop").value,fmes:$("fmes").value,agrup:$("agrup").checked},
+    resumo:resumoAtual()};
+  try{ localStorage.setItem(PREF_AN+id,JSON.stringify(a)) }
+  catch(e){ avisoAnalise('<span class="bad">❌ Sem espaço no navegador. Exclua uma análise antiga em “Minhas análises”.</span>'); return false }
+  const l=lerIndice().filter(x=>x.id!==id);
+  l.unshift({id,nome,quando:a.quando,resumo:a.resumo});
+  gravarIndice(l);
+  ANALISE_ATUAL={id,nome}; gravarAtual();
+  if(!silencioso) avisoAnalise(`💾 <b>${esc(nome)}</b> salva em ${new Date(a.quando).toLocaleString("pt-BR")}.`);
+  atualizarBarraAnalise();
+  return true;
+}
+function abrirAnalise(id,msg){
+  let a=null;
+  try{a=JSON.parse(localStorage.getItem(PREF_AN+id)||"null")}catch(e){}
+  if(!a){alert("Não encontrei essa análise.");return false}
+  $("obras").value=a.obrasTxt||""; pintarObras();
+  if(a.coleta&&a.coleta.obras){ aplicarColeta(a.coleta,true); $("colaRes").innerHTML="" }
+  else $("limparColeta").onclick();
+  CODIGOS=(a.codigos||[]).map(String);
+  const f=a.filtros||{};
+  $("q").value=f.q||""; $("fop").value=f.fop||""; $("agrup").checked=f.agrup!==false;
+  sortKey=null; sortDir=1;
+  pintarChips(); render();
+  /* o mês só existe no select depois do primeiro render */
+  if(f.fmes){ $("fmes").value=f.fmes; render() }
+  ANALISE_ATUAL={id:a.id,nome:a.nome}; gravarAtual();
+  avisoAnalise(msg||`📂 <b>${esc(a.nome)}</b> — salva em ${new Date(a.quando).toLocaleString("pt-BR")}.`);
+  atualizarBarraAnalise(); fecharAnalises();
+  return true;
+}
+function excluirAnalise(id){
+  const l=lerIndice(), a=l.find(x=>x.id===id); if(!a) return;
+  if(!confirm(`Excluir a análise “${a.nome}”? Isso não afeta o termômetro.`)) return;
+  try{localStorage.removeItem(PREF_AN+id)}catch(e){}
+  gravarIndice(l.filter(x=>x.id!==id));
+  if(ANALISE_ATUAL&&ANALISE_ATUAL.id===id){ ANALISE_ATUAL=null; gravarAtual(); avisoAnalise("") }
+  atualizarBarraAnalise(); listarAnalises();
+}
+function renomearAnalise(id){
+  const l=lerIndice(), a=l.find(x=>x.id===id); if(!a) return;
+  const nome=prompt("Novo nome da análise:",a.nome); if(!nome||!nome.trim()) return;
+  a.nome=nome.trim(); gravarIndice(l);
+  try{const o=JSON.parse(localStorage.getItem(PREF_AN+id)); o.nome=a.nome;
+    localStorage.setItem(PREF_AN+id,JSON.stringify(o))}catch(e){}
+  if(ANALISE_ATUAL&&ANALISE_ATUAL.id===id){ ANALISE_ATUAL.nome=a.nome; gravarAtual() }
+  atualizarBarraAnalise(); listarAnalises();
+}
+function atualizarBarraAnalise(){
+  const b=$("btnAnalises"), n=lerIndice().length;
+  b.textContent = ANALISE_ATUAL ? `📂 ${ANALISE_ATUAL.nome}` : (n?`📂 Minhas análises (${n})`:"📂 Minhas análises");
+  b.title = n? "Escolher, renomear ou excluir análises salvas" : "Nenhuma análise salva ainda";
+}
+function listarAnalises(){
+  const l=lerIndice(), el=$("listaAnalises");
+  if(!l.length){el.innerHTML='<p class="muted" style="margin:0">Nenhuma análise salva ainda. Aplique uma coleta, escolha os serviços e clique em <b>Salvar análise</b>.</p>';return}
+  el.innerHTML=l.map(a=>{const aberta=ANALISE_ATUAL&&ANALISE_ATUAL.id===a.id, r=a.resumo||{};
+    return `<div class="itemAnalise${aberta?" atual":""}">
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:700">${esc(a.nome)}${aberta?' <span class="tag s-ok">aberta</span>':""}</div>
+      <div class="muted" style="font-size:12px">${new Date(a.quando).toLocaleString("pt-BR")}</div>
+      <div class="muted" style="font-size:12px">${nnum(r.obras)} obras coletadas · ${nnum(r.comApont)} com apontamento`+
+        `${(r.codigos||[]).length?` · serviços ${esc(r.codigos.join(", "))} em ${nnum(r.obrasComServico)} obra(s)`:" · nenhum serviço escolhido"}</div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button data-abrir="${a.id}">Abrir</button>
+      ${aberta?'<button class="sec" data-fechar="1" title="Sair desta análise: o que você fizer depois deixa de ser gravado nela">Fechar</button>':""}
+      <button class="sec" data-codigo="${a.id}">🔑 Código</button>
+      <button class="sec" data-renomear="${a.id}">Renomear</button>
+      <button class="sec perigo" data-excluir="${a.id}">Excluir</button>
+    </div></div>`}).join("");
+}
+function fecharAnaliseAberta(){
+  if(!ANALISE_ATUAL) return;
+  gravarAnalise(ANALISE_ATUAL.id,ANALISE_ATUAL.nome,true);
+  ANALISE_ATUAL=null; gravarAtual(); atualizarBarraAnalise(); listarAnalises();
+  avisoAnalise("📂 Análise fechada e guardada. O que você fizer agora entra numa análise nova ao salvar.");
+}
+function abrirAnalises(){$("analisesmodal").hidden=false;listarAnalises()}
+function fecharAnalises(){$("analisesmodal").hidden=true;
+  $("analisesTitulo").textContent="Minhas análises"; $("analisesSub").hidden=true}
+$("btnAnalises").onclick=abrirAnalises;
+$("analisesFechar").onclick=fecharAnalises;
+$("analisesmodal").addEventListener("click",e=>{if(e.target.id==="analisesmodal")fecharAnalises()});
+$("listaAnalises").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b)return;
+  if(b.dataset.fechar) fecharAnaliseAberta();
+  else if(b.dataset.abrir) abrirAnalise(b.dataset.abrir);
+  else if(b.dataset.codigo) mostrarCodigo(b.dataset.codigo);
+  else if(b.dataset.renomear) renomearAnalise(b.dataset.renomear);
+  else if(b.dataset.excluir) excluirAnalise(b.dataset.excluir);
+});
+$("btnSalvar").onclick=()=>{
+  if(!COLETA){ avisoAnalise('<span class="bad">❌ Aplique uma coleta antes de salvar a análise.</span>'); return }
+  /* com uma análise aberta, deixa escolher entre atualizar ela ou guardar mais uma */
+  if(ANALISE_ATUAL){
+    const atualizar=confirm(
+      "Análise aberta: “"+ANALISE_ATUAL.nome+"”.\n\n"+
+      "OK = atualizar essa análise.\n"+
+      "Cancelar = salvar como uma análise nova, mantendo “"+ANALISE_ATUAL.nome+"” como está.");
+    if(atualizar){ gravarAnalise(ANALISE_ATUAL.id,ANALISE_ATUAL.nome,false); return }
+  }
+  const nome=prompt("Nome da nova análise (ex.: Serviço 6120 — setembro):",nomeSugerido());
+  if(!nome||!nome.trim()) return;
+  gravarAnalise(novoId(),nome.trim(),false);
+};
+
+/* ---------- código de recuperação (exportar/importar análise) ---------- */
+const COD_PREFIXO="BSO1-", COD_PREFIXO_CRU="BSO0-";
+function b64Enc(bytes){
+  let s=""; const passo=0x8000;
+  for(let i=0;i<bytes.length;i+=passo) s+=String.fromCharCode.apply(null,bytes.subarray(i,i+passo));
+  return btoa(s);
+}
+function b64Dec(txt){ const s=atob(txt), u=new Uint8Array(s.length); for(let i=0;i<s.length;i++) u[i]=s.charCodeAt(i); return u }
+async function comprimir(bytes){
+  if(typeof CompressionStream!=="function") return null;
+  const cs=new CompressionStream("deflate-raw"); const w=cs.writable.getWriter(); w.write(bytes); w.close();
+  return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+}
+async function descomprimir(bytes){
+  const ds=new DecompressionStream("deflate-raw"); const w=ds.writable.getWriter(); w.write(bytes); w.close();
+  return new Uint8Array(await new Response(ds.readable).arrayBuffer());
+}
+const quebrar=t=>(t.match(/.{1,120}/g)||[]).join("\n");
+async function gerarCodigo(id){
+  const cru=LS.get(PREF_AN+id); if(!cru) throw new Error("Análise não encontrada.");
+  const bytes=new TextEncoder().encode(cru);
+  let comp=null; try{ comp=await comprimir(bytes) }catch(e){}
+  return comp ? COD_PREFIXO+quebrar(b64Enc(comp)) : COD_PREFIXO_CRU+quebrar(b64Enc(bytes));
+}
+async function lerCodigo(texto){
+  const limpo=(texto||"").replace(/\s+/g,"");
+  let corpo=null, comprimido=false;
+  if(limpo.startsWith(COD_PREFIXO)){ corpo=limpo.slice(COD_PREFIXO.length); comprimido=true }
+  else if(limpo.startsWith(COD_PREFIXO_CRU)) corpo=limpo.slice(COD_PREFIXO_CRU.length);
+  else throw new Error("Código inválido — ele precisa começar com "+COD_PREFIXO);
+  let bytes;
+  try{ bytes=b64Dec(corpo); if(comprimido) bytes=await descomprimir(bytes) }
+  catch(e){ throw new Error("Código incompleto ou corrompido — copie o texto inteiro.") }
+  let a=null; try{ a=JSON.parse(new TextDecoder().decode(bytes)) }catch(e){}
+  if(!a||typeof a!=="object"||!a.nome) throw new Error("Este código não é de uma análise.");
+  return a;
+}
+function salvarAnaliseImportada(a){
+  const l=lerIndice();
+  let id=a.id||novoId(), nome=a.nome;
+  const existente=l.find(x=>x.id===id);
+  if(existente&&!confirm(`Já existe a análise “${existente.nome}” com este código.\n\nOK = substituir pela versão do código\nCancelar = importar como uma cópia nova`)){
+    id=novoId(); nome=a.nome+" (cópia)";
+  }
+  a=Object.assign({},a,{id,nome});
+  try{ localStorage.setItem(PREF_AN+id,JSON.stringify(a)) }
+  catch(e){ throw new Error("Sem espaço no navegador. Exclua uma análise antiga e tente de novo.") }
+  gravarIndice([{id,nome,quando:a.quando||new Date().toISOString(),resumo:a.resumo||null}].concat(l.filter(x=>x.id!==id)));
+  return id;
+}
+let CODIGO_ATUAL={texto:"",nome:""};
+function mostrarCodigo(id){
+  const a=lerIndice().find(x=>x.id===id), sub=$("codigoSub"), saida=$("codigoSaida");
+  $("codigoMsg").textContent=""; saida.value="Gerando código…"; $("codigomodal").hidden=false;
+  gerarCodigo(id).then(cod=>{
+    CODIGO_ATUAL={texto:cod,nome:(a&&a.nome)||"analise"};
+    saida.value=cod;
+    sub.innerHTML=`Código de <b>${esc((a&&a.nome)||"")}</b> — ${(cod.length/1024).toFixed(0)} KB. `+
+      `Guarde-o num arquivo de texto (ou baixe o .txt). Para recuperar, cole em <b>Minhas análises → Restaurar por código</b>.`;
+  }).catch(e=>{ saida.value=""; sub.textContent="❌ "+e.message });
+}
+function fecharCodigo(){$("codigomodal").hidden=true}
+$("codigoFechar").onclick=fecharCodigo;
+$("codigomodal").addEventListener("click",e=>{if(e.target.id==="codigomodal")fecharCodigo()});
+$("codigoCopiar").onclick=()=>{
+  const t=$("codigoSaida"), msg=$("codigoMsg");
+  t.select(); t.setSelectionRange(0,t.value.length);
+  const ok=()=>{msg.textContent="✅ Copiado."; setTimeout(()=>msg.textContent="",3000)};
+  const viaExec=()=>{msg.textContent=document.execCommand("copy")?"✅ Copiado.":"Selecione o texto e use Ctrl+C."};
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t.value).then(ok,viaExec);
+  else viaExec();
+};
+$("codigoBaixar").onclick=()=>{
+  if(!CODIGO_ATUAL.texto) return;
+  const nome=CODIGO_ATUAL.nome.replace(/[\\/:*?"<>|]+/g,"-").slice(0,60)||"analise";
+  const url=URL.createObjectURL(new Blob([CODIGO_ATUAL.texto],{type:"text/plain;charset=utf-8"}));
+  const a=document.createElement("a"); a.href=url; a.download=`codigo-${nome}.txt`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+/* gera o código da análise aberta agora — salvando antes, para levar as últimas mudanças */
+$("btnCodigoAtual").onclick=()=>{
+  let id;
+  if(ANALISE_ATUAL){
+    id=ANALISE_ATUAL.id;
+    if(!gravarAnalise(id,ANALISE_ATUAL.nome,true)) return;
+  }else{
+    if(!COLETA){ alert("Aplique uma coleta (ou abra uma análise salva) antes de gerar o código."); return }
+    const nome=prompt("Esta análise ainda não foi salva. Nome dela:",nomeSugerido());
+    if(!nome||!nome.trim()) return;
+    id=novoId();
+    if(!gravarAnalise(id,nome.trim(),true)) return;
+  }
+  mostrarCodigo(id);
+};
+$("btnAbrirRestaurar").onclick=()=>{ const b=$("boxRestaurar"); b.hidden=!b.hidden; if(!b.hidden) $("txtCodigo").focus() };
+$("btnArquivoCodigo").onclick=()=>$("fileCodigo").click();
+$("fileCodigo").onchange=e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ $("txtCodigo").value=r.result; $("msgCodigo").textContent="Arquivo lido — clique em “Restaurar análise”." };
+  r.readAsText(f); e.target.value="";
+};
+$("btnRestaurarCodigo").onclick=async()=>{
+  const msg=$("msgCodigo"), txt=$("txtCodigo").value;
+  if(!txt.trim()){msg.textContent="Cole o código primeiro.";return}
+  msg.textContent="Restaurando…";
+  try{
+    const id=salvarAnaliseImportada(await lerCodigo(txt));
+    $("txtCodigo").value=""; msg.textContent="";
+    atualizarBarraAnalise(); listarAnalises(); abrirAnalise(id);
+  }catch(e){ msg.innerHTML='<span class="bad">❌ '+esc(e.message)+"</span>" }
+};
+
+/* ao abrir o link: continua a análise que estava aberta, ou oferece a escolha quando houver análises salvas */
+(()=>{
+  let at=null; try{ at=JSON.parse(LS.get(ATUAL)||"null") }catch(e){}
+  if(at&&at.id&&lerIndice().some(x=>x.id===at.id)){
+    abrirAnalise(at.id,`📂 <b>${esc(at.nome)}</b> — continuando de onde você parou (como foi salva por último).`);
+    return;
+  }
+  atualizarBarraAnalise();
+  if(!lerIndice().length) return;
+  $("analisesTitulo").textContent="Escolha a análise para trabalhar";
+  $("analisesSub").hidden=false;
+  abrirAnalises();
+})();
 </script>
 </body>
 </html>

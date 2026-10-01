@@ -17,6 +17,19 @@ ainda é confirmada dentro da planilha.
 Depois da coleta o filtro de mês continua valendo: cada serviço guarda a data
 da planilha, então dá para trocar de mês sem varrer o termômetro de novo.
 
+## Análises salvas
+
+Mesmo padrão da análise detalhada de obras pagas, com os botões no topo:
+
+- **💾 Salvar análise** — guarda a lista de obras, a coleta, os serviços
+  escolhidos e os filtros. Com uma análise aberta, pergunta se é para
+  atualizá-la ou salvar como uma nova.
+- **📂 Minhas análises** — abrir, fechar, renomear, excluir e gerar o código.
+  Ao abrir o link, a análise que estava aberta volta sozinha.
+- **🔑 Código desta análise** — gera um código de recuperação (`BSO1-…`) para
+  guardar num .txt e restaurar em outro computador ou depois de limpar o cache
+  (*Minhas análises → Restaurar por código*).
+
 ## Arquivos
 
 Um arquivo só — `index.html`, com tela, estilo e código dentro. Sem build e sem
