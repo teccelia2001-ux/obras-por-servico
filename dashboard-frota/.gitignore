@@ -1,0 +1,5 @@
+# planilhas reais ficam só na máquina
+dados/*.xlsx
+dados/*.xls
+dados/*.csv
+__pycache__/

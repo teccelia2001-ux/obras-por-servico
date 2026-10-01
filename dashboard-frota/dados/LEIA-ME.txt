@@ -1,0 +1,4 @@
+Coloque aqui as planilhas (.xlsx, .xls ou .csv):
+  combustivel*.xlsx  -> abastecimentos (data, tombamento, valor, litros, km...)
+  manutencao*.xlsx   -> saídas de manutenção (data, tombamento, descrição, material, valor...)
+Várias planilhas com o mesmo prefixo são somadas (ex.: combustivel-2025.xlsx + combustivel-2026.xlsx).
